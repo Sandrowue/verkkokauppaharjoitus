@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,6 +28,9 @@ SECRET_KEY = 'django-insecure-3@ltx7n3!ee^3x9v))pd#a1it!1#8a6e16u(+1jqueen9*lrsx
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+VISMA_API_KEY = os.getenv("VISMA_API_KEY")
+VISMA_SECRET_KEY = os.getenv("VISMA_SECRET_KEY")
 
 ALLOWED_HOSTS = []
 
