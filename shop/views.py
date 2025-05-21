@@ -36,13 +36,23 @@ def purchase_product(request, pk):
 
     product = get_object_or_404(Product, pk=pk)
 
+    # luodaan itselle tietokantaan tieoto tilauksesta
+    order = Order(
+        order_name = order_no,
+        product = product,
+        email = "joni.t@example.com",
+        paid = False
+    )
+
+    order.save()
+
     payload = {
         "version": "w3.2",
         "api_key": api_key,
         "order_number": order_no,
         "amount": int(product.total_price * 100),
         "currency": "EUR",
-        "email": "joni.t@example.com",
+        "email": order.email,
         "payment_method": {
             "type": "e-payment",
             "return_url": "http://127.0.0.1:8000/purchase_succeeded",
@@ -54,7 +64,7 @@ def purchase_product(request, pk):
         "customer": {  
             "firstname": "Joni",
             "lastname": "Tuominen",
-            "email": "joni.t@example.com",
+            "email": order.email,
             "address_street": "Koilisen Puistokatu 24",
             "address_city": "Vaasa",
             "address_zip": "65300"
@@ -82,4 +92,22 @@ def purchase_product(request, pk):
     return redirect(target_url)
 
 def purchase_succeeded(request):
-    return render(request, 'shop/success.html') 
+    return_code = int(request.GET.get('RETURN_CODE'))
+    if return_code == 0:
+        print("Purchase succeeded")
+        order_no = request.GET.get('ORDER_NUMBER')
+        authcode_from_visma = request.GET.get('AUTHCODE')
+        settled = request.GET.get('SETTLED')
+
+        str_for_auth = str(return_code) + "|" + order_no + "|" + settled
+        print(str_for_auth)
+
+        my_authcode = generate_authcode(str_for_auth)
+
+        if authcode_from_visma == my_authcode:
+            order = Order.objects.get(order_name=order_no)
+            order.paid = True
+            order.save()
+    context = {'return_code': return_code}
+
+    return render(request, 'shop/success.html', context) 

@@ -2,6 +2,10 @@
     <head>
     </head>
     <bosy>
+    {%  if return_code == 0 %}
         <h1>OSTO ONNISTUI</h1>
+    {% else %}
+        <h1>JOTAIN MENI PIELEEN</h1>
+    {% endif %}
     </bosy>
 </html>
